@@ -2,7 +2,7 @@ import { getDriveClient } from "./oauth";
 import { getPrisma } from "@/lib/db";
 import { embedTexts } from "@/lib/vector/embeddings";
 import { Readable } from "stream";
-import { PDFParse } from "pdf-parse";
+import { extractText, getDocumentProxy } from "unpdf";
 import mammoth from "mammoth";
 
 const CHUNK_SIZE_CHARS = 3500;
@@ -135,10 +135,9 @@ async function getFileText(
         const buffer = await streamToBuffer(res.data as unknown as Readable, MAX_FILE_BYTES);
 
         if (mimeType === "application/pdf") {
-            const parser = new PDFParse({ data: buffer });
-            const pdf = await parser.getText();
-            await parser.destroy();
-            return pdf.text ?? "";
+            const pdf = await getDocumentProxy(new Uint8Array(buffer));
+            const { text } = await extractText(pdf, { mergePages: true });
+            return text ?? "";
         }
 
         if (mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {

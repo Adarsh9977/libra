@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 import { runIngestion } from "@/lib/drive/incrementalSync";
 import { requireAuth } from "@/lib/auth/middleware";
 
+/** Allow long run in production (e.g. Vercel Pro supports up to 300s). */
+export const maxDuration = 300;
+
 /**
  * POST: Run one-time (or full) ingestion for the authenticated user's Drive.
  * Body: { maxFiles?: number }
