@@ -1,0 +1,74 @@
+// Prisma schema for Libra – Drive tokens, documents, and vector chunks (pgvector)
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model DriveToken {
+  id           String   @id @default(uuid()) @db.Uuid
+  userId       String   @unique @map("user_id")
+  accessToken  String   @map("access_token")
+  refreshToken String   @map("refresh_token")
+  expiresAt    DateTime @map("expires_at")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@map("drive_tokens")
+}
+
+model DriveDocument {
+  id        String       @id @default(uuid()) @db.Uuid
+  fileId    String       @unique @map("file_id")
+  name      String       @map("name")
+  mimeType  String       @map("mime_type")
+  updatedAt DateTime     @map("updated_at")
+  createdAt DateTime     @default(now()) @map("created_at")
+  chunks    DriveChunk[]
+
+  @@map("drive_documents")
+}
+
+model DriveChunk {
+  id         String   @id @default(uuid()) @db.Uuid
+  documentId String   @map("document_id") @db.Uuid
+  content    String
+  // pgvector column – use raw SQL for insert and similarity search
+  embedding  Unsupported("vector(1536)")
+  metadata   Json     @default("{}")
+  createdAt  DateTime @default(now()) @map("created_at")
+  document   DriveDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@index([documentId])
+  @@map("drive_chunks")
+}
+
+model Chat {
+  id        String     @id @default(uuid()) @db.Uuid
+  userId   String     @default("default") @map("user_id")
+  title    String     @default("New chat") @db.Text
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  turns    ChatTurn[]
+
+  @@index([userId])
+  @@map("chats")
+}
+
+model ChatTurn {
+  id          String   @id @default(uuid()) @db.Uuid
+  chatId      String   @map("chat_id") @db.Uuid
+  task        String   @db.Text
+  steps       Json     @default("[]")
+  finalAnswer Json
+  toolsUsed   Json     @default("[]")
+  tokenUsage  Int?     @map("token_usage")
+  createdAt   DateTime @default(now()) @map("created_at")
+  chat        Chat     @relation(fields: [chatId], references: [id], onDelete: Cascade)
+
+  @@index([chatId])
+  @@map("chat_turns")
+}
