@@ -18,6 +18,7 @@ export type ChatMessage = {
 export interface ChatMessageListProps {
     messages: ChatMessage[];
     running: boolean;
+    loading?: boolean;
     onRetry: (task: string) => void;
     onSourcesClick: (sources: string[], toolsUsed: string[]) => void;
     inputSlot?: React.ReactNode;
@@ -26,19 +27,31 @@ export interface ChatMessageListProps {
 export function ChatMessageList({
     messages,
     running,
+    loading,
     onRetry,
     onSourcesClick,
     inputSlot,
 }: ChatMessageListProps) {
     const hasContent = messages.length > 0;
+    const showEmptyState = !hasContent && !running && !loading;
 
     return (
         <main
-            className={`min-h-0 flex-1 overflow-y-auto ${!hasContent && !running ? "flex items-center justify-center" : ""}`}
+            className={`min-h-0 flex-1 overflow-y-auto ${showEmptyState ? "flex items-center justify-center" : ""}`}
         >
             <div className="mx-auto max-w-3xl px-4 py-6">
-                {/* Empty state — Perplexity-style */}
-                {!hasContent && !running && (
+                {/* Loading state */}
+                {loading && !hasContent && (
+                    <div className="flex flex-col items-center justify-center gap-3 py-20">
+                        <svg className="h-8 w-8 animate-spin text-muted-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                        </svg>
+                        <span className="text-muted-foreground text-sm">Loading chat…</span>
+                    </div>
+                )}
+                {/* Empty state — only on root */}
+                {showEmptyState && (
                     <div className="flex mb-[15%] flex-col items-center">
                         {/* Brand */}
                         <h2 className="text-5xl font-light tracking-tight text-foreground/80">

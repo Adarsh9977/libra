@@ -46,6 +46,7 @@ export function ChatApp({ initialChatId }: ChatAppProps) {
 
   const [task, setTask] = React.useState("");
   const [running, setRunning] = React.useState(false);
+  const [loading, setLoading] = React.useState(!!initialChatId);
   const [messages, setMessages] = React.useState<ChatMessage[]>([]);
   const [currentChatId, setCurrentChatId] = React.useState<string | null>(
     initialChatId ?? null
@@ -63,6 +64,7 @@ export function ChatApp({ initialChatId }: ChatAppProps) {
   /* ────────────────────── Data fetching ────────────────────── */
 
   const loadChat = React.useCallback(async (id: string) => {
+    setLoading(true);
     try {
       const res = await fetch(`/api/chats/${id}`);
       if (!res.ok) return;
@@ -90,6 +92,8 @@ export function ChatApp({ initialChatId }: ChatAppProps) {
       setCurrentChatId(id);
     } catch {
       // ignore
+    } finally {
+      setLoading(false);
     }
   }, []);
 
@@ -235,9 +239,10 @@ export function ChatApp({ initialChatId }: ChatAppProps) {
       <ChatMessageList
         messages={messages}
         running={running}
+        loading={loading}
         onRetry={(t) => runAgent(t)}
         onSourcesClick={openSourcesDrawer}
-        inputSlot={!hasMessages && !running ? taskInputEl : undefined}
+        inputSlot={!hasMessages && !running && !loading ? taskInputEl : undefined}
       />
 
       <DriveDrawer

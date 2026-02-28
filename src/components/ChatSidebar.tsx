@@ -132,7 +132,7 @@ export function ChatSidebar() {
                   className={cn(
                     "w-full rounded-lg px-3 py-2.5 pr-8 text-left text-sm transition-colors",
                     currentChatId === chat.id
-                      ? "bg-sidebar-foreground font-medium text-foreground"
+                      ? "bg-sidebar-foreground font-medium text-primary-foreground"
                       : "text-muted-foreground hover:bg-sidebar hover:text-foreground"
                   )}
                 >
