@@ -2,6 +2,9 @@ import { google } from "googleapis";
 import { getPrisma } from "@/lib/db";
 
 const SCOPES = [
+  "openid",
+  "https://www.googleapis.com/auth/userinfo.email",
+  "https://www.googleapis.com/auth/userinfo.profile",
   "https://www.googleapis.com/auth/drive.readonly",
   "https://www.googleapis.com/auth/drive.metadata.readonly",
 ];
@@ -30,12 +33,11 @@ export function getAuthUrl(state?: string): string {
 }
 
 /**
- * Exchange code for tokens and store in DB.
+ * Exchange code for tokens. Returns token data (caller stores them).
  */
 export async function exchangeCodeForTokens(
-  code: string,
-  userId: string
-): Promise<void> {
+  code: string
+): Promise<{ accessToken: string; refreshToken: string; expiresAt: Date }> {
   const oauth2 = getOAuth2Client();
   const { tokens } = await oauth2.getToken(code);
   if (!tokens.access_token || !tokens.refresh_token) {
@@ -44,21 +46,11 @@ export async function exchangeCodeForTokens(
   const expiresAt = tokens.expiry_date
     ? new Date(tokens.expiry_date)
     : new Date(Date.now() + 3600 * 1000);
-  const prisma = getPrisma();
-  await prisma.driveToken.upsert({
-    where: { userId },
-    create: {
-      userId,
-      accessToken: tokens.access_token,
-      refreshToken: tokens.refresh_token,
-      expiresAt,
-    },
-    update: {
-      accessToken: tokens.access_token,
-      refreshToken: tokens.refresh_token,
-      expiresAt,
-    },
-  });
+  return {
+    accessToken: tokens.access_token,
+    refreshToken: tokens.refresh_token,
+    expiresAt,
+  };
 }
 
 const EXPIRY_BUFFER_MS = 5 * 60 * 1000; // refresh 5 min before expiry

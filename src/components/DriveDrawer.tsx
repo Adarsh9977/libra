@@ -4,6 +4,7 @@ import * as React from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { DriveStatus } from "@/components/DriveStatus";
 import { useToast } from "@/components/Toast";
+import { useUser } from "@/components/UserProvider";
 
 type DriveDocSummary = {
     id: string;
@@ -40,6 +41,8 @@ function mimeLabel(mime: string): { label: string; color: string } {
 
 export function DriveDrawer({ open, onClose }: DriveDrawerProps) {
     const { toast } = useToast();
+    const { user } = useUser();
+    const userId = user?.id ?? "default";
     const [connected, setConnected] = React.useState(false);
     const [ingestLoading, setIngestLoading] = React.useState(false);
     const [ingestResult, setIngestResult] = React.useState<{
@@ -59,7 +62,7 @@ export function DriveDrawer({ open, onClose }: DriveDrawerProps) {
     /* ── Fetch helpers ── */
 
     const fetchStatus = React.useCallback(() => {
-        fetch("/api/drive/status?userId=default")
+        fetch(`/api/drive/status?userId=${userId}`)
             .then((r) => r.json())
             .then((d) => {
                 if (d.connected === true) setConnected(true);
@@ -145,7 +148,7 @@ export function DriveDrawer({ open, onClose }: DriveDrawerProps) {
         fetch("/api/drive/ingest", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ userId: "default", maxFiles: 50 }),
+            body: JSON.stringify({ userId, maxFiles: 50 }),
         })
             .then((res) => res.json())
             .then((data) => {
@@ -190,7 +193,7 @@ export function DriveDrawer({ open, onClose }: DriveDrawerProps) {
             const res = await fetch("/api/drive/sync", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ userId: "default", pageToken: token }),
+                body: JSON.stringify({ userId, pageToken: token }),
             });
             if (!res.ok) {
                 const err = await res.json().catch(() => ({}));

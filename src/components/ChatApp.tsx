@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useUser } from "@/components/UserProvider";
 import { TaskInput } from "@/components/TaskInput";
 import { SourcesDrawer } from "@/components/SourcesDrawer";
 import { SettingsModal } from "@/components/SettingsModal";
@@ -36,13 +37,15 @@ type AgentRunResult = {
   tokenUsage: number;
 };
 
-const userId = "default";
+
 
 export interface ChatAppProps {
   initialChatId?: string;
 }
 
 export function ChatApp({ initialChatId }: ChatAppProps) {
+  const { user } = useUser();
+  const userId = user?.id ?? "default";
 
   const [task, setTask] = React.useState("");
   const [running, setRunning] = React.useState(false);
@@ -140,7 +143,7 @@ export function ChatApp({ initialChatId }: ChatAppProps) {
           body: JSON.stringify({
             task: userTask,
             maxSteps: 10,
-            userId: "default",
+            userId,
             chatId,
           }),
         });
