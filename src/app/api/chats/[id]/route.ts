@@ -1,17 +1,19 @@
 import { NextResponse } from "next/server";
 import { getPrisma } from "@/lib/db";
+import { requireAuth } from "@/lib/auth/middleware";
 
 /**
- * GET: Fetch a single chat with its turns (for loading into the UI).
- * Query: userId — if provided, only return the chat when it belongs to this user.
+ * GET: Fetch a single chat with its turns (for loading into the UI). Requires auth; returns only if chat belongs to the user.
  */
 export async function GET(
-  request: Request,
+  _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await requireAuth();
+  if (auth instanceof NextResponse) return auth;
+  const { userId } = auth;
   try {
     const { id } = await params;
-    const userId = new URL(request.url).searchParams.get("userId") ?? undefined;
     const prisma = getPrisma();
     const chat = await prisma.chat.findUnique({
       where: { id },
@@ -33,7 +35,7 @@ export async function GET(
     if (!chat) {
       return NextResponse.json({ error: "Chat not found" }, { status: 404 });
     }
-    if (userId != null && chat.userId !== userId) {
+    if (chat.userId !== userId) {
       return NextResponse.json({ error: "Chat not found" }, { status: 404 });
     }
     return NextResponse.json(chat);
@@ -47,22 +49,23 @@ export async function GET(
 }
 
 /**
- * DELETE: Delete a chat and all its turns.
- * Query: userId — if provided, only delete when the chat belongs to this user.
+ * DELETE: Delete a chat and all its turns. Requires auth; only if chat belongs to the user.
  */
 export async function DELETE(
-  request: Request,
+  _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await requireAuth();
+  if (auth instanceof NextResponse) return auth;
+  const { userId } = auth;
   try {
     const { id } = await params;
-    const userId = new URL(request.url).searchParams.get("userId") ?? undefined;
     const prisma = getPrisma();
     const chat = await prisma.chat.findUnique({ where: { id }, select: { userId: true } });
     if (!chat) {
       return NextResponse.json({ error: "Chat not found" }, { status: 404 });
     }
-    if (userId != null && chat.userId !== userId) {
+    if (chat.userId !== userId) {
       return NextResponse.json({ error: "Chat not found" }, { status: 404 });
     }
     await prisma.chatTurn.deleteMany({ where: { chatId: id } });

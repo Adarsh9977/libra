@@ -1,13 +1,15 @@
 import { NextResponse } from "next/server";
 import { getPrisma } from "@/lib/db";
+import { requireAuth } from "@/lib/auth/middleware";
 
 /**
- * GET: List chats for the user (default userId).
+ * GET: List chats for the authenticated user.
  */
-export async function GET(request: Request) {
+export async function GET() {
+  const auth = await requireAuth();
+  if (auth instanceof NextResponse) return auth;
+  const { userId } = auth;
   try {
-    const { searchParams } = new URL(request.url);
-    const userId = searchParams.get("userId") ?? "default";
     const prisma = getPrisma();
     const chats = await prisma.chat.findMany({
       where: { userId },
@@ -26,12 +28,14 @@ export async function GET(request: Request) {
 
 /**
  * POST: Create a new chat.
- * Body: { userId?: string, title?: string }
+ * Body: { title?: string, id?: string (client id) }
  */
 export async function POST(request: Request) {
+  const auth = await requireAuth();
+  if (auth instanceof NextResponse) return auth;
+  const { userId } = auth;
   try {
     const body = await request.json().catch(() => ({}));
-    const userId = (body.userId as string) ?? "default";
     const title = (body.title as string) ?? "New chat";
     const clientId = body.id as string | undefined;
     const prisma = getPrisma();

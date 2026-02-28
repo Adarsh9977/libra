@@ -1,14 +1,15 @@
 import { NextResponse } from "next/server";
 import { getStartPageToken } from "@/lib/drive/incrementalSync";
+import { requireAuth } from "@/lib/auth/middleware";
 
 /**
- * GET: Fetch a start page token for Drive incremental sync.
- * Query: userId (default "default")
+ * GET: Fetch a start page token for Drive incremental sync. Requires auth.
  */
-export async function GET(request: Request) {
+export async function GET() {
+  const auth = await requireAuth();
+  if (auth instanceof NextResponse) return auth;
+  const { userId } = auth;
   try {
-    const { searchParams } = new URL(request.url);
-    const userId = searchParams.get("userId") ?? "default";
     const pageToken = await getStartPageToken(userId);
     if (!pageToken) {
       return NextResponse.json(

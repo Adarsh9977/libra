@@ -1,14 +1,15 @@
 import { NextResponse } from "next/server";
 import { getPrisma } from "@/lib/db";
+import { requireAuth } from "@/lib/auth/middleware";
 
 /**
- * GET: Check if Drive is connected for the user (tokens exist).
- * Query: userId (default "default")
+ * GET: Check if Drive is connected for the authenticated user.
  */
-export async function GET(request: Request) {
+export async function GET() {
+  const auth = await requireAuth();
+  if (auth instanceof NextResponse) return auth;
+  const { userId } = auth;
   try {
-    const { searchParams } = new URL(request.url);
-    const userId = searchParams.get("userId") ?? "default";
     const prisma = getPrisma();
     const row = await prisma.driveToken.findUnique({
       where: { userId },
@@ -34,13 +35,13 @@ export async function GET(request: Request) {
 }
 
 /**
- * DELETE: Disconnect Drive by removing stored tokens for the user.
- * Query: userId (default "default")
+ * DELETE: Disconnect Drive by removing stored tokens for the authenticated user.
  */
-export async function DELETE(request: Request) {
+export async function DELETE() {
+  const auth = await requireAuth();
+  if (auth instanceof NextResponse) return auth;
+  const { userId } = auth;
   try {
-    const { searchParams } = new URL(request.url);
-    const userId = searchParams.get("userId") ?? "default";
     const prisma = getPrisma();
     await prisma.driveToken.deleteMany({ where: { userId } });
     return NextResponse.json({ success: true });

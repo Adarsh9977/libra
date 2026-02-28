@@ -1,10 +1,14 @@
 import { NextResponse } from "next/server";
 import { runAgent } from "@/lib/agent/agentLoop";
 import { getPrisma } from "@/lib/db";
+import { requireAuth } from "@/lib/auth/middleware";
 
 export const maxDuration = 60;
 
 export async function POST(request: Request) {
+  const auth = await requireAuth();
+  if (auth instanceof NextResponse) return auth;
+  const { userId } = auth;
   try {
     const body = await request.json();
     const task = typeof body.task === "string" ? body.task.trim() : "";
@@ -12,7 +16,6 @@ export async function POST(request: Request) {
       typeof body.maxSteps === "number" && body.maxSteps > 0
         ? Math.min(body.maxSteps, 20)
         : 10;
-    const userId = typeof body.userId === "string" ? body.userId : undefined;
     const chatId = typeof body.chatId === "string" ? body.chatId : undefined;
 
     if (!task) {
