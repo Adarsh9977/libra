@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { useRouter } from "next/navigation";
 import { TaskInput } from "@/components/TaskInput";
 import { SourcesDrawer } from "@/components/SourcesDrawer";
 import { SettingsModal } from "@/components/SettingsModal";
@@ -44,12 +43,10 @@ export interface ChatAppProps {
 }
 
 export function ChatApp({ initialChatId }: ChatAppProps) {
-  const router = useRouter();
 
   const [task, setTask] = React.useState("");
   const [running, setRunning] = React.useState(false);
   const [messages, setMessages] = React.useState<ChatMessage[]>([]);
-  const [tokenUsage, setTokenUsage] = React.useState(0);
   const [currentChatId, setCurrentChatId] = React.useState<string | null>(
     initialChatId ?? null
   );
@@ -110,7 +107,6 @@ export function ChatApp({ initialChatId }: ChatAppProps) {
       if (!userTask || running) return;
       if (!overrideTask) setTask("");
       setRunning(true);
-      setTokenUsage(0);
       let chatId = currentChatId;
       if (!chatId) {
         chatId = crypto.randomUUID();
@@ -149,7 +145,6 @@ export function ChatApp({ initialChatId }: ChatAppProps) {
           throw new Error(data.details ?? data.error ?? `HTTP ${res.status}`);
         }
         const data = (await res.json()) as AgentRunResult;
-        setTokenUsage(data.tokenUsage);
         const toolsUsed = Array.from(
           new Set(
             (data.steps ?? [])
@@ -207,7 +202,7 @@ export function ChatApp({ initialChatId }: ChatAppProps) {
         setRunning(false);
       }
     },
-    [task, running, currentChatId, router]
+    [task, running, currentChatId]
   );
 
   const openSourcesDrawer = React.useCallback(
