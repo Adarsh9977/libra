@@ -105,6 +105,12 @@ export function ChatApp({ initialChatId }: ChatAppProps) {
   React.useEffect(() => {
     if (initialChatId) {
       void loadChat(initialChatId);
+    } else {
+      // New chat (navigated to /): clear messages and current chat so UI matches URL
+      setMessages([]);
+      setCurrentChatId(null);
+      setLoading(false);
+      setTask("");
     }
   }, [initialChatId, loadChat]);
 
