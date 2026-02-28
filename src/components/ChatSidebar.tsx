@@ -100,18 +100,10 @@ export function ChatSidebar() {
     }
   }, [toast]);
 
-  const handleSignOut = React.useCallback(async () => {
-    try {
-      // POST to logout endpoint — it clears the cookie and redirects
-      const form = document.createElement("form");
-      form.method = "POST";
-      form.action = "/api/auth/logout";
-      document.body.appendChild(form);
-      form.submit();
-    } catch {
-      toast("Failed to sign out", "error");
-    }
-  }, [toast]);
+  const handleSignOut = React.useCallback(() => {
+    // GET so it works in production (some hosts return 405 for POST to this path)
+    window.location.href = "/api/auth/logout";
+  }, []);
 
   const isAuthenticated = !!user;
 
