@@ -69,10 +69,10 @@ export function ChatSidebar() {
   }, [router]);
 
   const handleDelete = React.useCallback(async () => {
-    if (!deleteConfirmId) return;
+    if (!deleteConfirmId || !userId) return;
     setDeleting(true);
     try {
-      const res = await fetch(`/api/chats/${deleteConfirmId}`, {
+      const res = await fetch(`/api/chats/${deleteConfirmId}?userId=${encodeURIComponent(userId)}`, {
         method: "DELETE",
       });
       if (!res.ok) throw new Error("Failed to delete");
@@ -88,7 +88,7 @@ export function ChatSidebar() {
       setDeleting(false);
       setDeleteConfirmId(null);
     }
-  }, [deleteConfirmId, currentChatId, router, toast]);
+  }, [deleteConfirmId, currentChatId, userId, router, toast]);
 
   const handleSignIn = React.useCallback(async () => {
     try {
@@ -231,10 +231,11 @@ export function ChatSidebar() {
                 <button
                   type="button"
                   onClick={handleSignOut}
-                  className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-background hover:text-foreground"
+                  className="flex items-center gap-1.5 rounded-md px-2 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-background hover:text-foreground"
                   title="Sign out"
                 >
-                  <LogOut className="h-4 w-4" />
+                  <LogOut className="h-4 w-4 shrink-0" />
+                  <span>Log out</span>
                 </button>
               </div>
             </div>

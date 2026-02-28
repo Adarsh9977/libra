@@ -3,13 +3,15 @@ import { getPrisma } from "@/lib/db";
 
 /**
  * GET: Fetch a single chat with its turns (for loading into the UI).
+ * Query: userId — if provided, only return the chat when it belongs to this user.
  */
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
+    const userId = new URL(request.url).searchParams.get("userId") ?? undefined;
     const prisma = getPrisma();
     const chat = await prisma.chat.findUnique({
       where: { id },
@@ -31,6 +33,9 @@ export async function GET(
     if (!chat) {
       return NextResponse.json({ error: "Chat not found" }, { status: 404 });
     }
+    if (userId != null && chat.userId !== userId) {
+      return NextResponse.json({ error: "Chat not found" }, { status: 404 });
+    }
     return NextResponse.json(chat);
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e);
@@ -43,15 +48,23 @@ export async function GET(
 
 /**
  * DELETE: Delete a chat and all its turns.
+ * Query: userId — if provided, only delete when the chat belongs to this user.
  */
 export async function DELETE(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
+    const userId = new URL(request.url).searchParams.get("userId") ?? undefined;
     const prisma = getPrisma();
-    // Delete turns first, then the chat
+    const chat = await prisma.chat.findUnique({ where: { id }, select: { userId: true } });
+    if (!chat) {
+      return NextResponse.json({ error: "Chat not found" }, { status: 404 });
+    }
+    if (userId != null && chat.userId !== userId) {
+      return NextResponse.json({ error: "Chat not found" }, { status: 404 });
+    }
     await prisma.chatTurn.deleteMany({ where: { chatId: id } });
     await prisma.chat.delete({ where: { id } });
     return NextResponse.json({ success: true });

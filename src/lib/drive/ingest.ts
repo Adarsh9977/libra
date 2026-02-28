@@ -285,7 +285,7 @@ export async function runIngestion(
 
             // Skip unchanged files using modifiedTime in DB
             const existing = await prisma.driveDocument.findUnique({
-                where: { fileId: file.id },
+                where: { fileId_userId: { fileId: file.id, userId } },
             });
 
             if (
@@ -331,9 +331,10 @@ export async function runIngestion(
                 : new Date();
 
             const doc = await prisma.driveDocument.upsert({
-                where: { fileId: file.id },
+                where: { fileId_userId: { fileId: file.id, userId } },
                 create: {
                     fileId: file.id,
+                    userId,
                     name: file.name,
                     mimeType: file.mimeType,
                     updatedAt,

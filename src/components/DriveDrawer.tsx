@@ -62,18 +62,18 @@ export function DriveDrawer({ open, onClose }: DriveDrawerProps) {
     /* ── Fetch helpers ── */
 
     const fetchStatus = React.useCallback(() => {
-        fetch(`/api/drive/status?userId=${userId}`)
+        fetch(`/api/drive/status?userId=${encodeURIComponent(userId)}`)
             .then((r) => r.json())
             .then((d) => {
                 if (d.connected === true) setConnected(true);
             })
             .catch(() => { });
-    }, []);
+    }, [userId]);
 
     const fetchDocuments = React.useCallback(async () => {
         try {
             setDocumentsLoading(true);
-            const res = await fetch("/api/drive/documents?limit=50");
+            const res = await fetch(`/api/drive/documents?userId=${encodeURIComponent(userId)}&limit=50`);
             if (!res.ok) return;
             const data = (await res.json()) as DriveDocSummary[];
             setDocuments(Array.isArray(data) ? data : []);
@@ -82,7 +82,7 @@ export function DriveDrawer({ open, onClose }: DriveDrawerProps) {
         } finally {
             setDocumentsLoading(false);
         }
-    }, []);
+    }, [userId]);
 
     // Check OAuth redirect params on mount
     React.useEffect(() => {
@@ -124,7 +124,7 @@ export function DriveDrawer({ open, onClose }: DriveDrawerProps) {
 
     const disconnectDrive = React.useCallback(async () => {
         try {
-            const res = await fetch("/api/drive/status?userId=default", {
+            const res = await fetch(`/api/drive/status?userId=${encodeURIComponent(userId)}`, {
                 method: "DELETE",
             });
             if (!res.ok) console.error("Failed to disconnect Drive");
@@ -137,7 +137,7 @@ export function DriveDrawer({ open, onClose }: DriveDrawerProps) {
             setSyncResult(null);
             setDocuments([]);
         }
-    }, []);
+    }, [userId]);
 
     const runIngest = React.useCallback(() => {
         setIngestLoading(true);
@@ -179,7 +179,7 @@ export function DriveDrawer({ open, onClose }: DriveDrawerProps) {
         try {
             let token = syncToken;
             if (!token) {
-                const startRes = await fetch("/api/drive/sync/start?userId=default");
+                const startRes = await fetch(`/api/drive/sync/start?userId=${encodeURIComponent(userId)}`);
                 if (!startRes.ok) {
                     const err = await startRes.json().catch(() => ({}));
                     throw new Error(err.details ?? err.error ?? "Failed to get sync token");

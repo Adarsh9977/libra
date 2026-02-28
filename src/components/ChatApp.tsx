@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { useUser } from "@/components/UserProvider";
+import { useToast } from "@/components/Toast";
 import { TaskInput } from "@/components/TaskInput";
 import { SourcesDrawer } from "@/components/SourcesDrawer";
 import { SettingsModal } from "@/components/SettingsModal";
@@ -45,6 +46,7 @@ export interface ChatAppProps {
 
 export function ChatApp({ initialChatId }: ChatAppProps) {
   const { user } = useUser();
+  const { toast } = useToast();
   const userId = user?.id ?? "default";
 
   const [task, setTask] = React.useState("");
@@ -69,7 +71,7 @@ export function ChatApp({ initialChatId }: ChatAppProps) {
   const loadChat = React.useCallback(async (id: string) => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/chats/${id}`);
+      const res = await fetch(`/api/chats/${id}?userId=${encodeURIComponent(userId)}`);
       if (!res.ok) return;
       const data = (await res.json()) as {
         id: string;
@@ -98,7 +100,7 @@ export function ChatApp({ initialChatId }: ChatAppProps) {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [userId]);
 
   React.useEffect(() => {
     if (initialChatId) {
@@ -110,6 +112,10 @@ export function ChatApp({ initialChatId }: ChatAppProps) {
 
   const runAgent = React.useCallback(
     async (overrideTask?: string) => {
+      if (!user) {
+        toast("You need to sign in to chat with Libra.", "error");
+        return;
+      }
       const userTask = (overrideTask ?? task).trim();
       if (!userTask || running) return;
       if (!overrideTask) setTask("");
@@ -209,7 +215,7 @@ export function ChatApp({ initialChatId }: ChatAppProps) {
         setRunning(false);
       }
     },
-    [task, running, currentChatId]
+    [user, task, running, currentChatId, userId, toast]
   );
 
   const openSourcesDrawer = React.useCallback(
@@ -222,6 +228,7 @@ export function ChatApp({ initialChatId }: ChatAppProps) {
   );
 
   const hasMessages = messages.length > 0;
+  const isLoggedIn = !!user;
 
   const taskInputEl = (
     <TaskInput
@@ -232,6 +239,9 @@ export function ChatApp({ initialChatId }: ChatAppProps) {
       placeholder="Message Libra..."
     />
   );
+
+  const emptyStateInputSlot =
+    !hasMessages && !running && !loading ? taskInputEl : undefined;
 
   return (
     <>
@@ -245,7 +255,7 @@ export function ChatApp({ initialChatId }: ChatAppProps) {
         loading={loading}
         onRetry={(t) => runAgent(t)}
         onSourcesClick={openSourcesDrawer}
-        inputSlot={!hasMessages && !running && !loading ? taskInputEl : undefined}
+        inputSlot={emptyStateInputSlot}
       />
 
       <DriveDrawer
@@ -265,8 +275,8 @@ export function ChatApp({ initialChatId }: ChatAppProps) {
         onClose={() => setShowSettings(false)}
       />
 
-      {/* Bottom input — only when there are messages or agent is running */}
-      {(hasMessages || running) && (
+      {/* Bottom input — only when logged in and (there are messages or agent is running) */}
+      {isLoggedIn && (hasMessages || running) && (
         <div className="shrink-0 px-4 py-4">
           <div className="mx-auto max-w-3xl">
             {taskInputEl}

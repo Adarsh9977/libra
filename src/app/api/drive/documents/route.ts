@@ -2,12 +2,13 @@ import { NextResponse } from "next/server";
 import { getPrisma } from "@/lib/db";
 
 /**
- * GET: List ingested Drive documents (most recent first).
- * Query: limit?: number (default 50, max 200)
+ * GET: List ingested Drive documents for the user (most recent first).
+ * Query: userId (required for scoping), limit?: number (default 50, max 200)
  */
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
+    const userId = searchParams.get("userId") ?? "default";
     const limitParam = searchParams.get("limit");
     let limit = 50;
     if (limitParam) {
@@ -18,6 +19,7 @@ export async function GET(request: Request) {
     }
     const prisma = getPrisma();
     const docs = await prisma.driveDocument.findMany({
+      where: { userId },
       orderBy: { updatedAt: "desc" },
       select: {
         id: true,
