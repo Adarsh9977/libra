@@ -49,7 +49,7 @@ export async function POST(request: Request) {
     });
 
     const response = NextResponse.json({ user }, { status: 201 });
-    response.cookies.set("libra_user_id", user.id, {
+    response.cookies.set("agent_search_user_id", user.id, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",

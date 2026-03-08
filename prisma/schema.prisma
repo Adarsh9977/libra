@@ -1,4 +1,4 @@
-// Prisma schema for Libra – Drive tokens, documents, and vector chunks (pgvector)
+// Prisma schema for Agent Search – Drive tokens, documents, and vector chunks (pgvector)
 generator client {
   provider = "prisma-client-js"
   output   = "../node_modules/.prisma/client"

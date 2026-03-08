@@ -71,7 +71,7 @@ export const webScrapeTool: Tool = {
         signal: ctrl.signal,
         headers: {
           "User-Agent":
-            "Mozilla/5.0 (compatible; LibraAgent/1.0; +https://github.com/libra)",
+            "Mozilla/5.0 (compatible; AgentSearch/1.0; +https://github.com/agent-search)",
         },
       });
       clearTimeout(id);

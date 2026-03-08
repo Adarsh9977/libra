@@ -119,7 +119,7 @@ export function ChatApp({ initialChatId }: ChatAppProps) {
   const runAgent = React.useCallback(
     async (overrideTask?: string) => {
       if (!user) {
-        toast("You need to sign in to chat with Libra.", "error");
+        toast("You need to sign in to chat with Agent Search.", "error");
         return;
       }
       const userTask = (overrideTask ?? task).trim();
@@ -242,7 +242,7 @@ export function ChatApp({ initialChatId }: ChatAppProps) {
       onChange={setTask}
       onRun={runAgent}
       disabled={running}
-      placeholder="Message Libra..."
+      placeholder="Message Agent Search..."
     />
   );
 

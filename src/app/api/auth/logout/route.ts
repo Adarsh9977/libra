@@ -6,7 +6,7 @@ function createLogoutResponse(request: Request): NextResponse {
     request.url.split("/api")[0] ??
     "http://localhost:3000";
   const response = NextResponse.redirect(new URL("/", base));
-  response.cookies.set("libra_user_id", "", {
+  response.cookies.set("agent_search_user_id", "", {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
@@ -17,14 +17,14 @@ function createLogoutResponse(request: Request): NextResponse {
 }
 
 /**
- * POST /api/auth/logout — clear the libra_user_id cookie and redirect home.
+ * POST /api/auth/logout — clear the agent_search_user_id cookie and redirect home.
  */
 export async function POST(request: Request) {
   return createLogoutResponse(request);
 }
 
 /**
- * GET /api/auth/logout — same as POST. Use when POST is blocked (e.g. some proxies return 405).
+ * GET /api/auth/logout — same as POST.
  */
 export async function GET(request: Request) {
   return createLogoutResponse(request);

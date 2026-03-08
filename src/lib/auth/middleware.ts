@@ -13,7 +13,7 @@ export async function requireAuth(): Promise<
   NextResponse | { userId: string }
 > {
   const cookieStore = await cookies();
-  const userId = cookieStore.get("libra_user_id")?.value;
+  const userId = cookieStore.get("agent_search_user_id")?.value;
 
   if (!userId) {
     return NextResponse.json(

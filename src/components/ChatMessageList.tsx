@@ -55,7 +55,7 @@ export function ChatMessageList({
                     <div className="flex mb-[15%] flex-col items-center">
                         {/* Brand */}
                         <h2 className="text-5xl font-light tracking-tight text-foreground/80">
-                            Libra
+                            Agent Search
                         </h2>
                         <p className="mt-4 text-base text-muted-foreground">
                             Ask anything. I can search the web, read pages, and search your

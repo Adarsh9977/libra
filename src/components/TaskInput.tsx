@@ -18,7 +18,7 @@ export function TaskInput({
   onChange,
   onRun,
   disabled = false,
-  placeholder = "Message Libra...",
+  placeholder = "Message Agent Search...",
   className,
 }: TaskInputProps) {
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);

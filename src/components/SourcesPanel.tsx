@@ -111,7 +111,7 @@ export function SourcesPanel({
               const text = `${finalAnswer.summary}\n\n${finalAnswer.detailed_answer}`;
               if (navigator.share) {
                 void navigator.share({
-                  title: "Libra",
+                  title: "Agent Search",
                   text,
                 });
               } else {

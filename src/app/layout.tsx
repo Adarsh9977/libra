@@ -6,7 +6,7 @@ import { UserProvider } from "@/components/UserProvider";
 import { ChatSidebar } from "@/components/ChatSidebar";
 
 export const metadata: Metadata = {
-  title: "Libra Agent",
+  title: "Agent Search",
   description: "Autonomous AI Agent Platform",
 };
 

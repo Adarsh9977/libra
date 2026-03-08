@@ -1,4 +1,4 @@
-# Libra — Autonomous AI Agent Platform
+# Agent Search — Autonomous AI Agent Platform
 
 Production-ready autonomous agent built with **Next.js 14** (App Router), **TypeScript** (strict), **TailwindCSS**, and **shadcn/ui**. No LangChain, Vercel AI SDK, or agent frameworks; orchestration and tools are implemented from scratch.
 
@@ -20,7 +20,7 @@ cp .env.example .env
 Fill in:
 
 - `OPENAI_API_KEY` — required for agent and embeddings.
-- `DATABASE_URL` — Postgres with [pgvector](https://github.com/pgvector/pgvector) (e.g. `postgresql://user:pass@localhost:5432/libra`).
+- `DATABASE_URL` — Postgres with [pgvector](https://github.com/pgvector/pgvector) (e.g. `postgresql://user:pass@localhost:5432/agent_search`).
 - `SERPER_API_KEY` — for web search ([serper.dev](https://serper.dev)).
 - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` — for Drive OAuth. In Google Cloud Console, add redirect URI: `http://localhost:3000/api/drive/oauth/callback` (or your `NEXTAUTH_URL` + `/api/drive/oauth/callback`).
 - `NEXTAUTH_URL` — e.g. `http://localhost:3000`.
@@ -38,7 +38,7 @@ docker compose up -d
 Then in `.env` set:
 
 ```bash
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/libra
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/agent_search
 ```
 
 **Run migrations:**

@@ -115,7 +115,7 @@ export function ChatSidebar() {
       <aside className="flex w-64 shrink-0 flex-col border-r border-sidebar-border bg-muted">
         {/* Brand */}
         <div className="flex h-14 shrink-0 items-center border-b border-sidebar-border px-4">
-          <h1 className="text-lg font-semibold tracking-tight">Libra</h1>
+          <h1 className="text-lg font-semibold tracking-tight">Agent Search</h1>
         </div>
 
         {isAuthenticated ? (

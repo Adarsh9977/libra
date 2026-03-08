@@ -73,7 +73,7 @@ export async function GET(request: Request) {
     const response = NextResponse.redirect(
       new URL("/?drive=connected", base)
     );
-    response.cookies.set("libra_user_id", user.id, {
+    response.cookies.set("agent_search_user_id", user.id, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
